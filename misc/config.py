@@ -14,7 +14,7 @@ STORE_PATH = Path.cwd() / "public/store/"
 JSON_PATH = Path.cwd() / "public/json/v1/"
 
 # maximum custom rootfs size
-MAX_CUSTOM_ROOTFS_SIZE_MB = 100
+MAX_CUSTOM_ROOTFS_SIZE_MB = 500
 
 # manual mapping of package ABI changes
 MAPPING_ABI = {"libubus20191227": "libubus"}
@@ -35,6 +35,7 @@ REPOSITORY_ALLOW_LIST = [
 
 # allow users to add a boot script to the images
 # ALLOW_DEFAULTS = False
+ALLOW_DEFAULTS = True
 
 # definition of branches, see and use branches.yml instead (unless testing)
 # BRANCHES = {}

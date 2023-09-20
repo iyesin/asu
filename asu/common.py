@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 import struct
+from functools import lru_cache
 from os import getenv
 from pathlib import Path
 from re import match
@@ -12,6 +13,25 @@ from tempfile import NamedTemporaryFile
 import nacl.signing
 import requests
 from podman import PodmanClient
+from requests.adapters import HTTPAdapter, Retry
+
+
+@lru_cache(maxsize=5)
+def downloader():
+    retries = Retry(
+        total=60,
+        connect=30,
+        read=30,
+        status=30,
+        other=10,
+        redirect=8,
+        backoff_factor=1.25,
+        status_forcelist=[500, 502, 503, 504]
+    )
+
+    session = requests.Session()
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+    return session
 
 import redis
 
@@ -27,7 +47,7 @@ def is_modified(config, url: str) -> bool:
     if modified_local:
         modified_local = modified_local.decode("utf-8")
 
-    modified_remote = requests.head(url).headers.get("last-modified")
+    modified_remote = downloader().head(url).headers.get("last-modified")
 
     if modified_local:
         if modified_local == modified_remote:
@@ -43,6 +63,7 @@ def is_modified(config, url: str) -> bool:
     return True
 
 
+@lru_cache(maxsize=256)
 def get_str_hash(string: str, length: int = 32) -> str:
     """Return sha256sum of str with optional length
 
@@ -59,6 +80,7 @@ def get_str_hash(string: str, length: int = 32) -> str:
     return response_hash
 
 
+@lru_cache(maxsize=256)
 def get_file_hash(path: str) -> str:
     """Return sha256sum of given path
 
@@ -156,6 +178,7 @@ def fingerprint_pubkey_usign(pubkey: str) -> str:
     return "".join(format(x, "02x") for x in keynum)
 
 
+@lru_cache(maxsize=256)
 def verify_usign(sig_file: Path, msg_file: Path, pub_key: str) -> bool:
     """Verify a signify/usign signature
 
@@ -186,6 +209,7 @@ def verify_usign(sig_file: Path, msg_file: Path, pub_key: str) -> bool:
         return False
 
 
+@lru_cache(maxsize=256)
 def remove_prefix(text, prefix):
     """Remove prefix from text
 
@@ -201,6 +225,7 @@ def remove_prefix(text, prefix):
     return text[text.startswith(prefix) and len(prefix) :]
 
 
+@lru_cache(maxsize=256)
 def get_container_version_tag(version: str) -> str:
     if match(r"^\d+\.\d+\.\d+(-rc\d+)?$", version):
         logging.debug("Version is a release version")
@@ -321,11 +346,12 @@ def report_error(job, msg):
     raise
 
 
+@lru_cache(maxsize=256)
 def parse_manifest(manifest_content: str):
     """Parse a manifest file and return a dictionary
 
     Args:
-        manifest (str): Manifest file content
+        manifest_content (str): Manifest file content
 
     Returns:
         dict: Dictionary of packages and versions
@@ -333,6 +359,7 @@ def parse_manifest(manifest_content: str):
     return dict(map(lambda pv: pv.split(" - "), manifest_content.splitlines()))
 
 
+@lru_cache(maxsize=256)
 def check_manifest(manifest, packages_versions):
     """Validate a manifest file
 

@@ -1,3 +1,4 @@
+from functools import lru_cache
 from os import getenv
 from pathlib import Path
 
@@ -8,6 +9,8 @@ from prometheus_client import CollectorRegistry, make_wsgi_app
 from rq import Queue
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from yaml import safe_load
+import requests
+from requests.adapters import HTTPAdapter, Retry, TimeoutSauce
 
 from asu import __version__
 from asu.common import get_redis_client
@@ -70,12 +73,28 @@ def create_app(test_config: dict = None) -> Flask:
 
     (Path().cwd()).mkdir(exist_ok=True, parents=True)
 
+    retries = Retry(
+        total=60,
+        connect=20,
+        read=20,
+        status=30,
+        other=30,
+        redirect=8,
+        backoff_factor=1.25,
+        status_forcelist=[500, 502, 503, 504]
+    )
+
+    session = requests.Session()
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+
+    @lru_cache(maxsize=128)
     @app.route("/json/")
     @app.route("/json/<path:path>")
     @app.route("/json/v1/<path:path>")
     def json_path(path="index.html"):
         return send_from_directory(app.config["PUBLIC_PATH"] / "json/v1", path)
 
+    @lru_cache(maxsize=128)
     @app.route("/store/")
     @app.route("/store/<path:path>")
     def store_path(path="index.html"):

@@ -1,13 +1,14 @@
 import json
 import logging
 from datetime import datetime, timedelta
+from functools import lru_cache
+from shutil import rmtree
 
-import requests
 from flask import Blueprint
 from rq import Queue
 
 from asu import __version__
-from asu.common import get_redis_client, is_modified
+from asu.common import get_redis_client, is_modified, downloader
 
 bp = Blueprint("janitor", __name__)
 
@@ -26,7 +27,7 @@ def update_branch(config, branch):
     targets = list(
         filter(
             lambda t: not t.startswith("."),
-            session.get(
+            downloader().get(
                 config["UPSTREAM_URL"] + f"/{version_path}/targets?json-targets"
             ).json(),
         )
@@ -81,6 +82,7 @@ def update_target_profiles(config, branch: dict, version: str, target: str) -> s
         branch(dict): Containing all branch information as defined in BRANCHES
         version(str): Version within branch
         target(str): Target within version
+        config(dict): Configuration dictionary
     """
     logging.info(f"{version}/{target}: Update profiles")
     r = get_redis_client(config)
@@ -90,11 +92,11 @@ def update_target_profiles(config, branch: dict, version: str, target: str) -> s
         config["UPSTREAM_URL"] + f"/{version_path}/targets/{target}/profiles.json"
     )
 
-    req = session.get(profiles_url)
+    req = downloader().get(profiles_url)
 
     if req.status_code != 200:
         logging.warning("Couldn't download %s", profiles_url)
-        return False
+        return ""
 
     metadata = req.json()
     profiles = metadata.pop("profiles", {})
@@ -193,7 +195,7 @@ def update_meta_json(config):
         "server": {
             "version": __version__,
             "contact": "mail@aparcar.org",
-            "allow_defaults": config["ALLOW_DEFAULTS"],
+            "allow_defaults": config.get("ALLOW_DEFAULTS", True),
             "repository_allow_list": config["REPOSITORY_ALLOW_LIST"],
         },
     }
