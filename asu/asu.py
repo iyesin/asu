@@ -10,7 +10,7 @@ from rq import Queue
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from yaml import safe_load
 import requests
-from requests.adapters import HTTPAdapter, Retry, TimeoutSauce
+from requests.adapters import HTTPAdapter, Retry
 
 from asu import __version__
 from asu.common import get_redis_client
