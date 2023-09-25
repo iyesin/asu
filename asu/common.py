@@ -359,7 +359,6 @@ def parse_manifest(manifest_content: str):
     return dict(map(lambda pv: pv.split(" - "), manifest_content.splitlines()))
 
 
-@lru_cache(maxsize=256)
 def check_manifest(manifest, packages_versions):
     """Validate a manifest file
 
