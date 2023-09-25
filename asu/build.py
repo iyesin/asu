@@ -61,7 +61,7 @@ def build(request: dict, job=None):
     podman.images.pull(image)
     log.info(f"Pulling {image}... done")
 
-    returncode, job.meta["stdout"], job.meta["stderr"] = run_container(
+    return_code, job.meta["stdout"], job.meta["stderr"] = run_container(
         podman, image, ["make", "info"]
     )
 
@@ -151,7 +151,7 @@ def build(request: dict, job=None):
             },
         )
 
-    returncode, job.meta["stdout"], job.meta["stderr"] = run_container(
+    return_code, job.meta["stdout"], job.meta["stderr"] = run_container(
         podman,
         image,
         [
@@ -166,7 +166,7 @@ def build(request: dict, job=None):
 
     job.save_meta()
 
-    if returncode:
+    if return_code:
         report_error(job, "Impossible package selection")
 
     manifest = parse_manifest(job.meta["stdout"])
@@ -213,7 +213,7 @@ def build(request: dict, job=None):
             },
         )
 
-    returncode, job.meta["stdout"], job.meta["stderr"] = run_container(
+    return_code, job.meta["stdout"], job.meta["stderr"] = run_container(
         podman,
         image,
         job.meta["build_cmd"],
@@ -223,7 +223,7 @@ def build(request: dict, job=None):
 
     job.save_meta()
 
-    if returncode:
+    if return_code:
         report_error(job, "Error while building firmware. See stdout/stderr")
 
     if "is too big" in job.meta["stderr"]:
