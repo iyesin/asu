@@ -363,7 +363,7 @@ def check_manifest(manifest, packages_versions):
     """Validate a manifest file
 
     Args:
-        manifest (str): Manifest file content
+        manifest (Option[str, doct]): Manifest file content
         packages_versions (dict): Dictionary of packages and versions
 
     Returns:
