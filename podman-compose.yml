@@ -11,7 +11,7 @@ services:
       dockerfile: Containerfile
     restart: always
     environment:
-      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/
+      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/${REDIS_DB:-0}
       - ALLOW_DEFAULTS
       - PUBLIC_PATH
     ports:
@@ -27,8 +27,8 @@ services:
     restart: always
     command: rqworker
     environment:
-      - CONTAINER_HOST=unix://$CONTAINER_SOCK
-      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/
+      - CONTAINER_HOST=unix://${CONTAINER_SOCK}
+      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/${REDIS_DB:-0}
     volumes:
       - $PUBLIC_PATH:$PUBLIC_PATH:rw
       - $CONTAINER_SOCK:$CONTAINER_SOCK:rw
@@ -43,8 +43,8 @@ services:
     restart: always
     command: rqworker
     environment:
-      - CONTAINER_HOST=unix://$CONTAINER_SOCK
-      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/
+      - CONTAINER_HOST=unix://${CONTAINER_SOCK}
+      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}/${REDIS_DB:-0}
     volumes:
       - $PUBLIC_PATH:$PUBLIC_PATH:rw
       - $CONTAINER_SOCK:$CONTAINER_SOCK:rw
