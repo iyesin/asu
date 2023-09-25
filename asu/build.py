@@ -2,7 +2,6 @@ import json
 import logging
 import re
 from datetime import datetime
-from os import getenv
 from pathlib import Path
 
 from podman import PodmanClient
