@@ -67,7 +67,7 @@ def build(request: dict, job=None):
 
     job.save_meta()
 
-    version_code = re.search('Current Revision: "(r.+)"', job.meta["stdout"]).group(1)
+    version_code = re.search(r'Current Revision: "(r.+)"', job.meta["stdout"]).group(1)
 
     if "version_code" in request:
         if version_code != request.get("version_code"):
