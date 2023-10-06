@@ -247,7 +247,7 @@ def build(request: dict, job=None):
             filter(
                 lambda i: i["type"]
                 in ["sysupgrade", "factory", "combined", "combined-efi"],
-                json_content["profiles"][req["profile"]]["images"],
+                json_content["profiles"][request["profile"]]["images"],
             ),
         )
     )
@@ -323,7 +323,7 @@ def build(request: dict, job=None):
 
     log.debug("JSON content %s", json_content)
 
-   # Increment stats
+    # Increment stats
     job.connection.hincrby(
         "stats:builds",
         "#".join([request["version"], request["target"], request["profile"]]),
