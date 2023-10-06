@@ -44,8 +44,8 @@ def create_app(test_config: dict = None) -> Flask:
 
     if not test_config:
         for config_file in [
-            Path.cwd() / "config.py",
             "/etc/asu/config.py",
+            Path.cwd() / "config.py",
         ]:
             if Path(config_file).exists():
                 print(f"Loading {config_file}")

@@ -14,7 +14,7 @@ STORE_PATH = Path.cwd() / "public/store/"
 JSON_PATH = Path.cwd() / "public/json/v1/"
 
 # maximum custom rootfs size
-MAX_CUSTOM_ROOTFS_SIZE_MB = 500
+MAX_CUSTOM_ROOTFS_SIZE_MB = 1024
 
 # manual mapping of package ABI changes
 MAPPING_ABI = {"libubus20191227": "libubus"}
@@ -41,7 +41,7 @@ ALLOW_DEFAULTS = True
 # BRANCHES = {}
 
 # what branches.yml file to load
-# BRANCHES_FILE = "./branches.yml"
+BRANCHES_FILE = "/etc/asu/branches.yml"
 
 # where to downlaod the images from
 # UPSTREAM_PATH = "https://downloads.openwrt.org"

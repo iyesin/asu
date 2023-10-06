@@ -16,6 +16,8 @@ services:
       - PUBLIC_PATH
     ports:
       - "127.0.0.1:${CONTAINER_PORT:-8000}:8000"
+    volumes:
+      - ${ETC_PATH:-/etc}:/etc/asu:rw
     depends_on:
       - redis
 
@@ -32,6 +34,7 @@ services:
     volumes:
       - $PUBLIC_PATH:$PUBLIC_PATH:rw
       - $CONTAINER_SOCK:$CONTAINER_SOCK:rw
+      - ${ETC_PATH:-/etc}:/etc/asu:rw
     depends_on:
       - redis
 
@@ -48,6 +51,7 @@ services:
     volumes:
       - $PUBLIC_PATH:$PUBLIC_PATH:rw
       - $CONTAINER_SOCK:$CONTAINER_SOCK:rw
+      - ${ETC_PATH:-/etc}:/etc/asu:rw
     depends_on:
       - redis
 
